@@ -1,12 +1,64 @@
 require "abc/version"
 
 module Abc
+  class Gem
+    def initialize(name)
+      # parse out the name here
+      @name = name
+    end
 
-  # Steps for ABC
-  # Load Gemfile
-  # Load each line of the file into a Gem object representing version, title, etc
-  # If the line matches a regex with a /do/ block on it then load it into a Block object which has a title
-  # representing the symbol of the block
-  # the Block object contains Gem objects for each line up to the end statement
-  # Organize the gems by name and place the blocks in alphabetical order and organize the blocks by title
+    def <=>
+
+    end
+  end
+
+  class Group
+    attr_accessor :gems
+
+    def initialize(name)
+      # parse out the group name from the match here
+      @name = name
+    end
+
+    def <=>
+
+    end
+  end
+
+  def load_gemfile
+   group = /group.*do/
+   gem = /gem.*/
+   gemfile_lines = []
+   File.open('Gemfile', 'r').each_line do |line|
+    match = group.match(line)
+    if match
+      gemfile_lines << Group.new(match)
+    end
+
+    if /end/.match(line)
+      next
+    end
+   gemfile_lines << Gem.new(gem.match(line))
+   end
+  end
+
+  def reorder_gemfile
+
+  end
+
+  def save_gemfile
+    # do the reverse of load with NewGemfile
+  end
+
+  def delete_original_gemfile
+    File.delete('Gemfile')
+    File.rename('NewGemfile','Gemfile')
+  end
+
+  def process
+    load_gemfile
+    reorder_gemfile
+    save_gemfile
+    delete_original_gemfile
+  end
 end
