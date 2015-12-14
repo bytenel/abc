@@ -4,12 +4,16 @@ require "abc/version"
 # TODO - fix bug on rebuilding the file getting wonky stuff
 module Abc
   class Gem
+    attr_reader :name
+
     def initialize(name)
       # parse out the name here
       @name = name
     end
 
     def <=>(other)
+      puts other.name + ' other'
+      puts name + ' this'
       other.name <=> @name
     end
   end
@@ -51,12 +55,15 @@ module Abc
       @gemfile_lines.last << Abc::Gem.new(gem.match(line))
       in_group = false
     elsif gem.match(line)
-      @gemfile_lines << Abc::Gem.new(gem.match(line))
+      @gemfile_lines << Abc::Gem.new(gem.match(line).to_a.first)
     end
    end
   end
 
   def self.reorder_gemfile
+    # FXIME this line now throws the following exception
+    # /Users/bytenel/workspace/abc/lib/abc.rb:64:in `sort!': comparison of Abc::Group with Abc::Gem failed (ArgumentError)
+    # need to find a way to compare those two object types using the spaceship operator
     @gemfile_lines.sort!
   end
 
