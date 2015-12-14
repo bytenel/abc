@@ -7,8 +7,8 @@ module Abc
       @name = name
     end
 
-    def <=>
-
+    def <=>(other)
+      other.name <=> @name
     end
   end
 
@@ -18,36 +18,52 @@ module Abc
     def initialize(name)
       # parse out the group name from the match here
       @name = name
+      @gems = []
     end
 
-    def <=>
+    def <=>(other)
+      other.name <=> @name
+    end
 
+    def <<(item)
+      @gems.push(item)
     end
   end
 
   def load_gemfile
    group = /group.*do/
    gem = /gem.*/
-   gemfile_lines = []
+   @gemfile_lines = []
    File.open('Gemfile', 'r').each_line do |line|
     match = group.match(line)
     if match
-      gemfile_lines << Group.new(match)
+      in_group = true
+      @gemfile_lines << Group.new(match)
     end
 
     if /end/.match(line)
       next
     end
-   gemfile_lines << Gem.new(gem.match(line))
+
+    if in_group
+      @gemfile_lines.last << Gem.new(gem.match(line))
+      in_group = false
+    else
+      @gemfile_lines << Gem.new(gem.match(line))
+    end
    end
   end
 
   def reorder_gemfile
-
+    @gemfile_lines.sort!
   end
 
   def save_gemfile
-    # do the reverse of load with NewGemfile
+    File.open('NewGemfile', 'w') do |f|
+      @gemfile_lines.each do |line|
+        f.puts line
+      end
+    end
   end
 
   def delete_original_gemfile
