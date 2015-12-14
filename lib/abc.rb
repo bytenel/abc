@@ -1,5 +1,7 @@
 require "abc/version"
 
+# TODO - need to keep regular data such as source, gemspec and other info in gem at top of file
+# TODO - fix bug on rebuilding the file getting wonky stuff
 module Abc
   class Gem
     def initialize(name)
