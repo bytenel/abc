@@ -30,15 +30,15 @@ module Abc
     end
   end
 
-  def load_gemfile
+  def self.load_gemfile
    group = /group.*do/
-   gem = /gem.*/
+   gem = /(?!gemspec)gem.*/
    @gemfile_lines = []
    File.open('Gemfile', 'r').each_line do |line|
     match = group.match(line)
     if match
       in_group = true
-      @gemfile_lines << Group.new(match)
+      @gemfile_lines << Abc::Group.new(match)
     end
 
     if /end/.match(line)
@@ -46,19 +46,19 @@ module Abc
     end
 
     if in_group
-      @gemfile_lines.last << Gem.new(gem.match(line))
+      @gemfile_lines.last << Abc::Gem.new(gem.match(line))
       in_group = false
-    else
-      @gemfile_lines << Gem.new(gem.match(line))
+    elsif gem.match(line)
+      @gemfile_lines << Abc::Gem.new(gem.match(line))
     end
    end
   end
 
-  def reorder_gemfile
+  def self.reorder_gemfile
     @gemfile_lines.sort!
   end
 
-  def save_gemfile
+  def self.save_gemfile
     File.open('NewGemfile', 'w') do |f|
       @gemfile_lines.each do |line|
         f.puts line
@@ -66,12 +66,12 @@ module Abc
     end
   end
 
-  def delete_original_gemfile
+  def self.delete_original_gemfile
     File.delete('Gemfile')
     File.rename('NewGemfile','Gemfile')
   end
 
-  def process
+  def self.process
     load_gemfile
     reorder_gemfile
     save_gemfile
